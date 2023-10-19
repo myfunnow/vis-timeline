@@ -8,7 +8,7 @@
 
     <style>
       #container {
-        width: 50vw;
+        width: 85vw;
         margin: 0 auto;
       }
 
@@ -76,16 +76,18 @@
         border-radius: 0.25rem;
         box-sizing: border-box;
       }
-
+      .vis-item-content {
+        width: 100%;
+      }
       /* TimelineItem */
       .item-container__content {
         height: 95%;
         max-height: 95%;
-        padding: 0.125rem;
+        padding: 0 0.5rem;
         display: flex;
-        flex-wrap: wrap;
-
-        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        align-items: start;
         width: 100%;
         overflow: hidden;
         font-size: 16px;
@@ -174,7 +176,7 @@
         // 根據 Spec，選擇 今日 時，Focus 在當下時間點 往前推 2 hr 整點 的位置，
         const initStartTime = moment(date).hours(8);
         const endOfDay = moment(date).endOf("day");
-        const hourRange = 6;
+        const hourRange = 13;
         const rangeBetweenNowAndEndOfDay = endOfDay.diff(
           initStartTime,
           "hours"
@@ -290,71 +292,79 @@
         };
       }
 
-      const testData = [
-        {
-          id: 0,
-          order_id: 3191484087511,
-          order_created_at: "2023-10-04 09:44:07",
-          start: setTime({ hour: 10, minute: 0 }),
-          end: setTime({ hour: 11, minute: 0 }),
-          order_display_status: 0,
-          cust_name: "Debby test",
-          cust_title: "小姐",
+      const testData = {
+        group: {
+          id: "unassigned",
+          content: "Unassigned",
         },
-        {
-          id: 1,
-          order_id: 3191487353494,
-          order_created_at: "2023-10-04 09:44:26",
-          start: setTime({ hour: 10, minute: 15 }),
-          end: setTime({ hour: 11, minute: 15 }),
-          order_display_status: 9,
-          cust_name: "Debby test",
-          cust_title: "小姐",
-        },
-        {
-          id: 2,
-          order_id: 3191507404885,
-          order_created_at: "2023-10-04 09:44:43",
-          start: setTime({ hour: 10, minute: 45 }),
-          end: setTime({ hour: 11, minute: 45 }),
-          order_display_status: 1,
-          cust_name: "Debby test",
-          cust_title: "小姐",
-        },
-        {
-          id: 3,
-          order_id: 3191497164243,
-          order_created_at: "2023-10-04 09:45:47",
-          start: setTime({ hour: 11, minute: 15 }),
-          end: setTime({ hour: 12, minute: 15 }),
-          order_display_status: 0,
-          cust_name: "Debby test",
-          cust_title: "小姐",
-        },
-        {
-          id: 4,
-          order_id: 3191498472338,
-          order_created_at: "2023-10-04 09:46:12",
-          start: setTime({ hour: 11, minute: 0 }),
-          end: setTime({ hour: 12, minute: 0 }),
-          order_display_status: 8,
-          cust_name: "Debby test",
-          cust_title: "小姐",
-        },
-        {
-          id: 5,
-          order_id: 3191589533034,
-          order_created_at: "2023-10-04 22:35:27",
-          start: setTime({ hour: 11, minute: 0 }),
-          end: setTime({ hour: 12, minute: 0 }),
+        items: [
+          {
+            id: 1,
+            order_id: 3191484087511,
+            order_created_at: "2023-10-04 09:44:07",
+            start: setTime({ hour: 10, minute: 0 }),
+            end: setTime({ hour: 11, minute: 0 }),
+            order_display_status: 0,
+            cust_name: "Debby test",
+            cust_title: "小姐",
+          },
+          {
+            id: 2,
+            order_id: 3191487353494,
+            order_created_at: "2023-10-04 09:44:26",
+            start: setTime({ hour: 10, minute: 15 }),
+            end: setTime({ hour: 11, minute: 15 }),
+            order_display_status: 9,
+            cust_name: "Debby test",
+            cust_title: "小姐",
+          },
+          {
+            id: 3,
+            order_id: 3191507404885,
+            order_created_at: "2023-10-04 09:44:43",
+            start: setTime({ hour: 10, minute: 45 }),
+            end: setTime({ hour: 11, minute: 45 }),
+            order_display_status: 1,
+            cust_name: "Debby test",
+            cust_title: "小姐",
+          },
+          {
+            id: 4,
+            order_id: 3191497164243,
+            order_created_at: "2023-10-04 09:45:47",
+            start: setTime({ hour: 11, minute: 15 }),
+            end: setTime({ hour: 12, minute: 15 }),
+            order_display_status: 0,
+            cust_name: "Debby test",
+            cust_title: "小姐",
+          },
+          {
+            id: 5,
+            order_id: 3191498472338,
+            order_created_at: "2023-10-04 09:46:12",
+            start: setTime({ hour: 11, minute: 0 }),
+            end: setTime({ hour: 12, minute: 0 }),
+            order_display_status: 8,
+            cust_name: "Debby test",
+            cust_title: "小姐",
+          },
+          {
+            id: 6,
+            order_id: 3191589533034,
+            order_created_at: "2023-10-04 22:35:27",
+            start: setTime({ hour: 11, minute: 0 }),
+            end: setTime({ hour: 12, minute: 0 }),
 
-          order_display_status: 0,
-          cust_name: "Debby test",
-          cust_title: "小姐",
-        },
-      ];
+            order_display_status: 0,
+            cust_name: "Debby test",
+            cust_title: "小姐",
+          },
+        ],
+      };
 
-      const { groupDataSet, itemDataSet } = generateGroupWithOverlapItem();
+      const { groupDataSet, itemDataSet } = generateGroupWithOverlapItem(0);
+
+      groupDataSet.add(testData.group);
 
       var GroupTemplate = (group) => {
         const className = `group-container`;
@@ -370,14 +380,14 @@
           super(props);
         }
         render() {
-          const { content, start, end, data } = this.props.item;
+          const { start, end, data } = this.props.item;
           const className = `${
             DISPLAY_STATUS_MAP[data.order_display_status]
           } item-container`;
           return (
             <div className={className}>
               <div className="item-container__content">
-                <div>{content}</div>
+                <div>{data.id} </div>
                 <div>{moment(start).format("HH:mm")}</div>
               </div>
             </div>
@@ -389,6 +399,7 @@
       const timelineStartAndEnd = getTodayTimelineStartAndEndByDeviceWidth(
         moment()
       );
+
       // specify options
       const options = {
         showCurrentTime: false, // 隱藏 timeline 上的 current time，改為自己實作
@@ -402,8 +413,10 @@
         verticalScroll: true,
         horizontalScroll: true,
         // 由於 timeline 會自動計算 cell 的寬度，為了滿足需求，所以這邊要自行使用 start/end 來計算 cell 的寬度
-        start: timelineStartAndEnd.start,
-        end: timelineStartAndEnd.end,
+        // start: timelineStartAndEnd.start,
+        start: moment().set({ hour: 13, minute: 0, second: 0 }),
+        end: moment().set({ hour: 23, minute: 0, second: 0 }),
+        // end: timelineStartAndEnd.end,
         // 設下 min/max 邊界防止 timeline 無限滾動，以及設定 zoomable 為 false 防止使用者縮放
         min: moment(selectedDate).startOf("day").valueOf(),
         max: moment(selectedDate).endOf("day").valueOf(),
@@ -439,7 +452,25 @@
         },
         onInitialDrawComplete: () => {
           console.log("%conInitialDrawComplete", "color: #bada55");
-          window.timeline.setItems(itemDataSet);
+          // window.timeline.setItems(itemDataSet);
+          const testItems = testData.items.sort(sortSlots).map((item) => ({
+            ...item,
+            group: "unassigned",
+            data: item,
+          }));
+          console.log(
+            "testItems init ids order:>> ",
+            testItems.map((o) => o.id)
+          );
+          itemDataSet.update(testItems);
+          // testData.items.sort(sortSlots).forEach(item =>{
+          //   console.log('item.id :>> ', item.id);
+          //   itemDataSet.add({
+          //     ...item,
+          //     group: 'unassigned',
+          //     data: item
+          //   })
+          // })
           console.timeEnd("timeline");
         },
         template: function (item, element) {
@@ -481,14 +512,17 @@
         }
 
         onGroupAmountChange(e) {
+          const amount = Number(e.target.value);
           this.setState({
-            groupAmount: Number(e.target.value),
+            groupAmount: amount < 1 ? 1 : amount,
           });
         }
 
         onItemAmountChange(e) {
+          const amount = Number(e.target.value);
+
           this.setState({
-            itemAmount: Number(e.target.value),
+            itemAmount: amount > 96 ? 96 : amount < 1 ? 1 : amount,
           });
         }
 
@@ -525,6 +559,8 @@
                   <span>Group with </span>
                   <input
                     type="number"
+                    min="1"
+                    max="96"
                     value={this.state.itemAmount}
                     onChange={this.onItemAmountChange.bind(this)}
                   />
@@ -542,7 +578,7 @@
         var container = document.getElementById("visualization");
         window.timeline = new vis.Timeline(
           container,
-          [],
+          itemDataSet,
           groupDataSet,
           options
         );
