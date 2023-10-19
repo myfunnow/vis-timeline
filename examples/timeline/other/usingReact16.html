@@ -1,151 +1,590 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Timeline | other | React 16 Components in templates</title>
 
     <meta name="example-screenshot-selector" content="#root" />
 
     <style>
-        .vis-item-visible-frame {
-            z-index: 111111;
-            position: absolute;
-            top: 0;
-        }
+      #container {
+        width: 85vw;
+        margin: 0 auto;
+      }
+
+      .added-section {
+        display: flex;
+        align-items: center;
+        height: 40px;
+      }
+
+      .added-section input {
+        width: 50px;
+        margin: 0 0.5rem;
+      }
+
+      .added-section button {
+        height : 20px;
+        margin-left: 1rem;
+
+      }
+
+      .vis-item.vis-range {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.1);
+      }
+      .vis-item.vis-range > .vis-item-overflow {
+        padding: 8px 0 0 8px;
+        margin: -8px 0 0 -8px;
+        box-sizing: content-box;
+        pointer-events: none;
+
+        border-radius: 4px;
+        border-top-right-radius: 14%;
+
+      }
+      .vis-item.vis-range > .vis-item-content {
+        padding: 0;
+        width: 100%;
+      }
+
+      .vis-item.vis-range.vis-selected {
+        box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.3);
+      }
+
+      .vis-item-visible-frame {
+        z-index: 111111;
+        position: absolute;
+        top: 0;
+      }
+      .group-container,.item-container {
+        height: 80px;
+      }
+      .group-container {
+
+      }
+      .item-container {
+        padding-top: 0.125rem;
+        padding-bottom: 0.125rem;
+        position: relative;
+        cursor: pointer;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        box-sizing: border-box;
+        width: 100%;
+        border-radius: 0.25rem;
+        box-sizing: border-box;
+      }
+      .vis-item-content {
+        width: 100%;
+      }
+      /* TimelineItem */
+      .item-container__content {
+        height: 95%;
+        max-height: 95%;
+        padding: 0 0.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: start;
+        width: 100%;
+        overflow: hidden;
+        font-size: 16px;
+        line-height: 16px;
+        box-sizing: box-sizing: border-box;
+
+      }
+      .unavailable {
+            background-color: #c03f45;
+            color: #fff;
+      }
+        /* transform above windicss flag to normal css */
+
+      .overBooked-icon {
+        transform: translateX(-50%) translateY(-50%);
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: #ff5537;
+        color: #fff;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        text-align: center;
+        font-size: 10px;
+        line-height: 16px;
+      }
+      .not_check_in {
+        background: #a7d1c3;
+        color: #3b7260;
+      }
+      .check_in {
+        background: #4d947c;
+        color: white;
+      }
+
+      .confirmed {
+        background: #e2edf1;
+        color: #5b9cb3;
+      }
+      .finished {
+        background: #468196;
+        color: white;
+      }
     </style>
   </head>
   <body>
+    <div id="root"></div>
 
-    <div id='root'></div>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.4.2/umd/react.development.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.4.2/umd/react-dom.development.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.5.1/umd/react-dom-server.browser.development.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 
+    <!-- for watch command -->
+    <!-- <script src="../../../dist/vis-timeline-graph2d.min.js"></script> -->
+    <!-- for build command -->
     <script src="../../../standalone/umd/vis-timeline-graph2d.min.js"></script>
-    <link href="../../../styles/vis-timeline-graph2d.css" rel="stylesheet" type="text/css" />
-    
+    <link
+      href="../../../styles/vis-timeline-graph2d.css"
+      rel="stylesheet"
+      type="text/css"
+    />
 
     <script type="text/babel">
-        // create groups
-        var numberOfGroups = 25; 
-        var groups = new vis.DataSet()
-        for (var i = 0; i < numberOfGroups; i++) {
-            groups.add({
-              id: i,
-              content: 'Truck ' + i
-            })
-        }
-          
-        // create items
-        var numberOfItems = 1000;
-        window.items = new vis.DataSet();
-        var itemsPerGroup = Math.round(numberOfItems/numberOfGroups);
-        for (var truck = 0; truck < numberOfGroups; truck++) {
-            var date = new Date();
-            for (var order = 0; order < itemsPerGroup; order++) {
-              date.setHours(date.getHours() +  4 * (Math.random() < 0.2));
-              var start = new Date(date);
-              date.setHours(date.getHours() + 2 + Math.floor(Math.random()*4));
-              var end = new Date(date);
-              items.add({
-                id: order + itemsPerGroup * truck,
-                group: truck,
-                start: start,
-                end: end,
-                content: 'Order ' + order
-              });
-            }
-        }
+      window.groupDataSet = new vis.DataSet();
+      window.itemDataSet = new vis.DataSet();
 
-        var GroupTemplate = (group) => {
-            return <div>
-                <label>{group.content}</label>
-            </div>
-        }
+      const DISPLAY_STATUS_MAP = {
+        0: "not_check_in",
+        1: "check_in",
+        8: "confirmed",
+        9: "finished",
+      };
 
-        class ItemTemplate extends React.Component {
-            constructor(props){
-                super(props);
-            }
-            render() {
-                return <div>
-                    <label>{this.props.item.content}</label>
-                    <button onClick={()=> { return console.log('aaaaaa')}}>aaaa</button>
-                </div>
-            }
-        }
+      function setTime(payload = { hour: 0, minute: 0 }) {
+        return moment()
+          .set({ ...payload, second: 0 })
+          .format("YYYY-MM-DD HH:mm:ss");
+      }
 
-        class VisibleFramTemplate extends React.Component {
-            constructor(props){
-                super(props);
-            }
-            render() {
-                return <div>
-                    id: {this.props.item.id}
-                    <button onClick={()=> { return console.log('aaaaaa') }}>aaaa</button>
-                </div>
-            }
-        }
+      // 讓 vis-timeline 時間軸預設寬度在 tablet 和 desktop 至少 > 40px
+      function getTodayTimelineStartAndEndByDeviceWidth(date = moment()) {
+        // 根據 Spec，選擇 今日 時，Focus 在當下時間點 往前推 2 hr 整點 的位置，
+        const initStartTime = moment(date).hours(8);
+        const endOfDay = moment(date).endOf("day");
+        const hourRange = 13;
+        const rangeBetweenNowAndEndOfDay = endOfDay.diff(
+          initStartTime,
+          "hours"
+        );
 
-        // specify options
-        var options = {
-            orientation: 'top',
-            maxHeight: 400,
-            start: new Date(),
-            end: new Date(1000*60*60*24 + (new Date()).valueOf()),
-            editable: true,
-            onInitialDrawComplete: () => {
-                window.timeline.setItems(window.items)
-            },
-            template: function (item, element) {
-                if (!item) { return }                
+        const start =
+          rangeBetweenNowAndEndOfDay < hourRange
+            ? moment(initStartTime).subtract(
+                hourRange - rangeBetweenNowAndEndOfDay,
+                "h"
+              )
+            : initStartTime;
+        const end =
+          rangeBetweenNowAndEndOfDay < hourRange
+            ? endOfDay
+            : moment(initStartTime).add(hourRange, "h");
 
-                return ReactDOM.createPortal( ReactDOM.render( <ItemTemplate item={item} />, element ), element, () => { window.timeline.redraw()} );
-                
-                // Works too
-                // return ReactDOMServer.renderToString(<ItemTemplate item={item} />)
-                
-                // Kinda works
-                // ReactDOM.render(<ItemTemplate item={item} />, element );
-                // return '' 
-            },
-           
-            groupTemplate: function (group, element) {
-                if (!group || !group.content) { return }
-                return ReactDOM.createPortal( ReactDOM.render( <GroupTemplate group={group} />, element ), element );
-            },
-
-            visibleFrameTemplate: function (item, element) {
-                if (!item || !element) { return }
-                if (element.className.indexOf('timeline-item-visible-frame') === -1) { return }
-                return ReactDOM.createPortal( ReactDOM.render( <VisibleFramTemplate item={item} />, element ), element );
-                
-            },
-        }
-    
-        class Timeline extends React.Component {
-            componentDidMount() {
-                return initTimeline();
-            }
-            render() {
-                return <div>
-                    <h1>timline with React</h1>
-                    <h2>Using react components for items and group templates</h2>      
-
-                    <div id="visualization"></div>
-                </div>
-            }
+        return {
+          start,
+          end,
+          range: hourRange,
         };
+      }
+      function isTimePauseSlot(slot) {
+        return (
+          !slot ||
+          ("occu_type" in slot && slot.occu_type === OccupationType.Unavailable)
+        );
+      }
 
-        function initTimeline() {
-            var container = document.getElementById('visualization');
-            window.timeline = new vis.Timeline(container, items, groups, options);
-        } 
+      /**
+       * 排序規則
+       * 1. 根據時間長度排序，越長的在越前面
+       * 2. 同樣的時間長度，根據開始時間排序，越早開始的在越前面
+       * 3. 同樣的時間長度、開始時間，如果是暫停時間 (occu_type === 0) 就排在前面
+       * 4. 同樣的時間長度、開始時間、都是訂單(occu_type === 1)，則根據訂單建立時間 (order_created_at) 排序，越早建立的在越前面
+       *  */
+      function sortSlots(a, b) {
+        const aDuration =
+          new Date(a.end).getTime() - new Date(a.start).getTime();
+        const bDuration =
+          new Date(b.end).getTime() - new Date(b.start).getTime();
 
-        ReactDOM.render(<Timeline />, document.getElementById('root'));
+        return (
+          bDuration - aDuration ||
+          new Date(a.start).getTime() - new Date(b.start).getTime() ||
+          // (isTimePauseSlot(b) ? 1 : 0) ||
+          new Date(a.order_created_at).getTime() -
+            new Date(b.order_created_at).getTime()
+        );
+      }
+
+      function generateOverlapItem(amount = 96, duration = 60) {
+        const offsetMinute = 15;
+        const groupAmount = duration / offsetMinute;
+        return Array.from({ length: amount }, (_, index) => {
+          const startHour = Math.floor(index / groupAmount);
+          const startMinutes = (index % groupAmount) * offsetMinute;
+          const start = setTime({ hour: startHour, minute: startMinutes });
+          const end = setTime({
+            hour: startHour,
+            minute: startMinutes + duration,
+          });
+          const status =
+            Object.keys(DISPLAY_STATUS_MAP)[
+              index % Object.keys(DISPLAY_STATUS_MAP).length
+            ];
+          return {
+            id: index,
+            order_created_at: "2023-10-04 09:44:07",
+            start,
+            end,
+            order_display_status: status,
+            cust_name: "Debby",
+            cust_title: "小姐",
+          };
+        });
+      }
+
+      function generateGroupWithOverlapItem(groupAmount = 1, itemAmount = 96) {
+        const groupDataSet = window.groupDataSet;
+        const itemDataSet = window.itemDataSet;
+
+        const preGroupLength = groupDataSet.length || 0;
+
+        Array.from({ length: groupAmount }, (_, groupIndex) => {
+          const groupId = groupIndex + preGroupLength;
+
+          groupDataSet.add({
+            id: groupId,
+            content: `Room ${groupId}`,
+          });
+
+          generateOverlapItem(itemAmount)
+            .sort(sortSlots)
+            .forEach((item, index) => {
+              const newItemId = `${index}--${groupId}`;
+              const newItem = {
+                ...item,
+                id: newItemId,
+              };
+              itemDataSet.add({
+                group: groupId,
+                data: newItem,
+                ...newItem,
+              });
+            });
+        });
+
+        return {
+          groupDataSet,
+          itemDataSet,
+        };
+      }
+
+      const testData = {
+        group: {
+          id: "unassigned",
+          content: "Unassigned",
+        },
+        items: [
+          {
+            id: 1,
+            order_id: 3191484087511,
+            order_created_at: "2023-10-04 09:44:07",
+            start: setTime({ hour: 10, minute: 0 }),
+            end: setTime({ hour: 11, minute: 0 }),
+            order_display_status: 0,
+            cust_name: "Debby test",
+            cust_title: "小姐",
+          },
+          {
+            id: 2,
+            order_id: 3191487353494,
+            order_created_at: "2023-10-04 09:44:26",
+            start: setTime({ hour: 10, minute: 15 }),
+            end: setTime({ hour: 11, minute: 15 }),
+            order_display_status: 9,
+            cust_name: "Debby test",
+            cust_title: "小姐",
+          },
+          {
+            id: 3,
+            order_id: 3191507404885,
+            order_created_at: "2023-10-04 09:44:43",
+            start: setTime({ hour: 10, minute: 45 }),
+            end: setTime({ hour: 11, minute: 45 }),
+            order_display_status: 1,
+            cust_name: "Debby test",
+            cust_title: "小姐",
+          },
+          {
+            id: 4,
+            order_id: 3191497164243,
+            order_created_at: "2023-10-04 09:45:47",
+            start: setTime({ hour: 11, minute: 15 }),
+            end: setTime({ hour: 12, minute: 15 }),
+            order_display_status: 0,
+            cust_name: "Debby test",
+            cust_title: "小姐",
+          },
+          {
+            id: 5,
+            order_id: 3191498472338,
+            order_created_at: "2023-10-04 09:46:12",
+            start: setTime({ hour: 11, minute: 0 }),
+            end: setTime({ hour: 12, minute: 0 }),
+            order_display_status: 8,
+            cust_name: "Debby test",
+            cust_title: "小姐",
+          },
+          {
+            id: 6,
+            order_id: 3191589533034,
+            order_created_at: "2023-10-04 22:35:27",
+            start: setTime({ hour: 11, minute: 0 }),
+            end: setTime({ hour: 12, minute: 0 }),
+
+            order_display_status: 0,
+            cust_name: "Debby test",
+            cust_title: "小姐",
+          },
+        ],
+      };
+
+      const { groupDataSet, itemDataSet } = generateGroupWithOverlapItem(0);
+
+      groupDataSet.add(testData.group);
+
+      var GroupTemplate = (group) => {
+        const className = `group-container`;
+        return (
+          <div className={className}>
+            <label>{group.group.content}</label>
+          </div>
+        );
+      };
+
+      class ItemTemplate extends React.Component {
+        constructor(props) {
+          super(props);
+        }
+        render() {
+          const { start, end, data } = this.props.item;
+          const className = `${
+            DISPLAY_STATUS_MAP[data.order_display_status]
+          } item-container`;
+          return (
+            <div className={className}>
+              <div className="item-container__content">
+                <div>{data.id} </div>
+                <div>{moment(start).format("HH:mm")}</div>
+              </div>
+            </div>
+          );
+        }
+      }
+
+      const selectedDate = moment().startOf("day");
+      const timelineStartAndEnd = getTodayTimelineStartAndEndByDeviceWidth(
+        moment()
+      );
+
+      // specify options
+      const options = {
+        showCurrentTime: false, // 隱藏 timeline 上的 current time，改為自己實作
+        // TODO：根據 API Order 決定 group 的順序
+        groupOrder: function (a, b) {
+          return a.orderIndex - b.orderIndex;
+        },
+        groupHeightMode: "fixed", // 避免該 row 沒有 item 時，高度會不一致
+        // showMajorLabels: false, // 如果設為 true，則會顯示當前日期的時間軸
+        stack: false, // 讓 item 可以互相重疊
+        verticalScroll: true,
+        horizontalScroll: true,
+        // 由於 timeline 會自動計算 cell 的寬度，為了滿足需求，所以這邊要自行使用 start/end 來計算 cell 的寬度
+        // start: timelineStartAndEnd.start,
+        start: moment().set({ hour: 13, minute: 0, second: 0 }),
+        end: moment().set({ hour: 23, minute: 0, second: 0 }),
+        // end: timelineStartAndEnd.end,
+        // 設下 min/max 邊界防止 timeline 無限滾動，以及設定 zoomable 為 false 防止使用者縮放
+        min: moment(selectedDate).startOf("day").valueOf(),
+        max: moment(selectedDate).endOf("day").valueOf(),
+        zoomable: false,
+        orientation: { axis: "top" },
+        margin: {
+          // item 有預設的 margin，這邊重新調整以符合設計
+          item: {
+            horizontal: 0,
+            vertical: 2,
+          },
+        },
+        timeAxis: { scale: "minute", step: 30 },
+        format: {
+          // 將 timeline 上的時間軸格式化
+          minorLabels: function (date, scale, step) {
+            switch (scale) {
+              case "minute":
+                return moment(date).minute() === 0
+                  ? `${moment(date).hour()}`
+                  : "";
+              default:
+                return new Date(date);
+            }
+          },
+        },
+        editable: {
+          add: false, // add new items by double tapping
+          updateTime: false, // drag items horizontally
+          updateGroup: false, // drag items from one group to another
+          remove: false, // delete an item by tapping the delete button top right
+          overrideItems: false, // allow these options to override item.editable
+        },
+        onInitialDrawComplete: () => {
+          console.log("%conInitialDrawComplete", "color: #bada55");
+          // window.timeline.setItems(itemDataSet);
+          const testItems = testData.items.sort(sortSlots).map((item) => ({
+            ...item,
+            group: "unassigned",
+            data: item,
+          }));
+          console.log(
+            "testItems init ids order:>> ",
+            testItems.map((o) => o.id)
+          );
+          itemDataSet.update(testItems);
+          // testData.items.sort(sortSlots).forEach(item =>{
+          //   console.log('item.id :>> ', item.id);
+          //   itemDataSet.add({
+          //     ...item,
+          //     group: 'unassigned',
+          //     data: item
+          //   })
+          // })
+          console.timeEnd("timeline");
+        },
+        template: function (item, element) {
+          if (!item) {
+            return;
+          }
+
+          return ReactDOM.createPortal(
+            ReactDOM.render(<ItemTemplate item={item} />, element),
+            element,
+            () => {
+              window.timeline.redraw();
+            }
+          );
+        },
+        groupTemplate: function (group, element) {
+          if (!group || !group.content) {
+            return;
+          }
+          return ReactDOM.createPortal(
+            ReactDOM.render(<GroupTemplate group={group} />, element),
+            element
+          );
+        },
+      };
+
+      class Timeline extends React.Component {
+        constructor() {
+          super();
+          // 初始化狀態
+          this.state = {
+            groupAmount: 5,
+            itemAmount: 96,
+            isAddingGroup: false,
+          };
+        }
+        componentDidMount() {
+          return initTimeline();
+        }
+
+        onGroupAmountChange(e) {
+          const amount = Number(e.target.value);
+          this.setState({
+            groupAmount: amount < 1 ? 1 : amount,
+          });
+        }
+
+        onItemAmountChange(e) {
+          const amount = Number(e.target.value);
+
+          this.setState({
+            itemAmount: amount > 96 ? 96 : amount < 1 ? 1 : amount,
+          });
+        }
+
+        onBtnClick() {
+          const { groupDataSet, itemDataSet } = generateGroupWithOverlapItem(
+            this.state.groupAmount,
+            this.state.itemAmount
+          );
+          this.setState({
+            isAddingGroup: true,
+          });
+          console.time("onBtnClick");
+          window.timeline.setGroups(groupDataSet);
+          window.timeline.setItems(itemDataSet);
+          this.setState({
+            isAddingGroup: false,
+          });
+          console.timeEnd("onBtnClick");
+        }
+
+        render() {
+          return (
+            <div id="container">
+              <h1>Timeline with React</h1>
+              {this.state.isAddingGroup && <h2> Adding group... </h2>}
+              <div className="added-section">
+                <h3>
+                  <span> Add </span>
+                  <input
+                    type="number"
+                    value={this.state.groupAmount}
+                    onChange={this.onGroupAmountChange.bind(this)}
+                  />
+                  <span>Group with </span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="96"
+                    value={this.state.itemAmount}
+                    onChange={this.onItemAmountChange.bind(this)}
+                  />
+                  <span> Items </span>
+                </h3>
+                <button onClick={() => this.onBtnClick()}> Add group </button>
+              </div>
+              <div id="visualization"></div>
+            </div>
+          );
+        }
+      }
+
+      function initTimeline() {
+        var container = document.getElementById("visualization");
+        window.timeline = new vis.Timeline(
+          container,
+          itemDataSet,
+          groupDataSet,
+          options
+        );
+      }
+
+      ReactDOM.render(<Timeline />, document.getElementById("root"));
     </script>
   </body>
 </html>
